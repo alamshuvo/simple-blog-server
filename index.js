@@ -39,6 +39,29 @@ async function run() {
     const result=await blogCollection.insertOne(newBlog)
     res.send(result)
   })
+
+// update blog
+ // update
+ app.put("/blog/id/:id",async(req,res)=>{
+  const id=req.params.id;
+  const filter={_id:new ObjectId(id)};
+  const option={upsert:true};
+  const updateBlog=req.body;
+  console.log(updateBlog);
+  const blog={
+    $set:{
+      photo:updateBlog.photo,
+      title:updateBlog.title,
+      categories:updateBlog.categories,
+      short:updateBlog.short,
+      long:updateBlog.long,
+      formattedDate:updateBlog.formattedDate
+    }
+  }
+  const result =await blogCollection.updateOne(filter,blog,option);
+  res.send(result)
+})
+
   // add comment on db
   app.post("/comment",async(req,res)=>{
     const newComment=req.body;
