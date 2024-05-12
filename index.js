@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config()
 const app =express();
@@ -39,14 +39,21 @@ async function run() {
     res.send(result)
   })
 
-  
+
   // all blog get
-  app.get("/blog",async(req,res)=>{
-    const cursor=blogCollection.find();
+//   db.events.find().sort({"timestamp": 1})
+  app.get("/blog", async(req,res)=>{
+    const cursor=blogCollection.find().sort({"formattedDate": 1});
     const result = await cursor.toArray();
     res.send(result);
     })
-
+// single blog item
+    app.get("/blog/id/:id",async(req,res)=>{
+        const id =req.params.id;
+        const quary={_id:new ObjectId(id)};
+        const result=await blogCollection.findOne(quary);
+        res.send(result)
+      })
 
 
 
