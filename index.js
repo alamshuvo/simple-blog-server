@@ -27,6 +27,7 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
   const blogCollection= client.db('simpleDB').collection('blogDB')
+  const commentCollection= client.db('simplecommentDB').collection('commentDB')
 
 
 
@@ -38,12 +39,33 @@ async function run() {
     const result=await blogCollection.insertOne(newBlog)
     res.send(result)
   })
+  // add comment on db
+  app.post("/comment",async(req,res)=>{
+    const newComment=req.body;
+    console.log(newComment);
+    const result=await commentCollection.insertOne(newComment)
+    res.send(result)
+  })
+  // all comment get on db
+  app.get("/comment", async(req,res)=>{
+    const cursor=commentCollection.find();
+    const result = await cursor.toArray();
+    res.send(result);
+    })
+
+
+    // get comment on id 
+    app.get(`/comment/id/:id`,async(req,res)=>{
+      // console.log(req.params.id);
+      const result=await commentCollection.find({id:req.params.id}).toArray();
+      res.send(result)
+    })
 
 
   // all blog get
 //   db.events.find().sort({"timestamp": 1})
   app.get("/blog", async(req,res)=>{
-    const cursor=blogCollection.find().sort({"formattedDate": 1});
+    const cursor=blogCollection.find().sort({"formattedDate": -1});
     const result = await cursor.toArray();
     res.send(result);
     })
