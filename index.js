@@ -28,6 +28,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
   const blogCollection= client.db('simpleDB').collection('blogDB')
   const commentCollection= client.db('simplecommentDB').collection('commentDB')
+  const wishlistCollection= client.db('simplewishlistDB').collection('wishlistDB')
 
 
 
@@ -85,6 +86,36 @@ async function run() {
     })
 
 
+    // wishlist added on db
+    app.post("/wishlist",async(req,res)=>{
+      const newWishlist=req.body;
+      console.log(newWishlist);
+      const result=await wishlistCollection.insertOne(newWishlist)
+      res.send(result)
+    })
+
+    app.post("/wish",async(req,res)=>{
+      const newWishlist=req.body;
+      console.log(newWishlist);
+      const result=await wishlistCollection.insertOne(newWishlist)
+      res.send(result)
+    })
+
+// wishlist  get on db
+app.get("/wishlist", async(req,res)=>{
+  const cursor=wishlistCollection.find();
+  const result = await cursor.toArray();
+  res.send(result);
+  })
+  app.get(`/wishlist/wish/:email`,async(req,res)=>{
+    // console.log(req.params.id);
+    const result=await wishlistCollection.find({
+      email:req.params.email}).toArray();
+    res.send(result)
+  })
+
+  // 
+
   // all blog get
 //   db.events.find().sort({"timestamp": 1})
   app.get("/blog", async(req,res)=>{
@@ -92,6 +123,12 @@ async function run() {
     const result = await cursor.toArray();
     res.send(result);
     })
+
+  // app.get("/blog", async(req,res)=>{
+  //   const cursor=blogCollection.find().sort({"long": 1});
+  //   const result = await cursor.toArray();
+  //   res.send(result);
+  //   })
 // single blog item
     app.get("/blog/id/:id",async(req,res)=>{
         const id =req.params.id;
@@ -99,6 +136,13 @@ async function run() {
         const result=await blogCollection.findOne(quary);
         res.send(result)
       })
+    // app.get("/blog/categories/:categories",async(req,res)=>{
+    //     const id =req.params.categories;
+    //     console.log(id);
+    //     const quary={categories:new ObjectId(id)};
+    //     const result=await blogCollection.find(quary);
+    //     res.send(result)
+    //   })
 
 
 
