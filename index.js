@@ -13,6 +13,8 @@ const port =process.env.PORT || 5000;
 app.use(cors({
   origin:[
     'http://localhost:5173',
+    'https://simple-blog-e67d9.web.app',
+    'https://simple-blog-e67d9.firebaseapp.com'
   
   ],
   credentials:true
@@ -57,7 +59,11 @@ const varifiyToken=(req,res,next)=>{
   // next()
 }
 
-
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production" ? true : false,
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+};
 
 
 async function run() {
@@ -73,11 +79,7 @@ app.post("/jwt" ,async(req,res)=>{
 const user =req.body;
 const token=jwt.sign(user,process.env.ACCESS_TOKEN,{expiresIn:'1h'})
 console.log("user",user);
-res.cookie('token',token,{
-  httpOnly:true,
-  secure:true,
-  sameSite:'none'
-})
+res.cookie('token',token,cookieOptions)
 .send({sucess:true})
 })
 
@@ -85,7 +87,7 @@ res.cookie('token',token,{
 app.post("/logout",async(req,res)=>{
   const  user=req.body;
   console.log(user);
-  res.clearCookie('token',{maxAge:0}).send({sucess:true})
+  res.clearCookie('token',{...cookieOptions, maxAge:0}).send({sucess:true})
 })
 
 
@@ -193,6 +195,9 @@ app.get("/wishlist", async(req,res)=>{
     const result = await cursor.toArray();
     res.send(result);
     })
+
+    // filterd featured data 
+
   app.get("/featured", async(req,res)=>{
     const cursor=blogCollection.find().sort({"long": 1});
     const result = await cursor.toArray();
@@ -220,7 +225,7 @@ app.get("/wishlist", async(req,res)=>{
 
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
