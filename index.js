@@ -41,6 +41,7 @@ async function run() {
     res.send(result)
   })
 
+
 // update blog
  // update
  app.put("/blog/id/:id",async(req,res)=>{
@@ -114,7 +115,14 @@ app.get("/wishlist", async(req,res)=>{
     res.send(result)
   })
 
-  // 
+  // delete one 
+    //  delete one 
+    app.delete("/wishlist/wish/:id",async(req,res)=>{
+      const id =req.params.id;
+      const quary={_id : new ObjectId(id)}
+      const result= await wishlistCollection.deleteOne(quary);
+      res.send(result);
+    })
 
   // all blog get
 //   db.events.find().sort({"timestamp": 1})
@@ -124,11 +132,7 @@ app.get("/wishlist", async(req,res)=>{
     res.send(result);
     })
 
-  // app.get("/blog", async(req,res)=>{
-  //   const cursor=blogCollection.find().sort({"long": 1});
-  //   const result = await cursor.toArray();
-  //   res.send(result);
-  //   })
+ 
 // single blog item
     app.get("/blog/id/:id",async(req,res)=>{
         const id =req.params.id;
@@ -136,13 +140,13 @@ app.get("/wishlist", async(req,res)=>{
         const result=await blogCollection.findOne(quary);
         res.send(result)
       })
-    // app.get("/blog/categories/:categories",async(req,res)=>{
-    //     const id =req.params.categories;
-    //     console.log(id);
-    //     const quary={categories:new ObjectId(id)};
-    //     const result=await blogCollection.find(quary);
-    //     res.send(result)
-    //   })
+    app.get("/blog/categories/:categories",async(req,res)=>{
+        const id =req.params.categories;
+        console.log(id);
+        const quary={categories:new ObjectId(id)};
+        const result=await blogCollection.find(quary);
+        res.send(result)
+      })
 
 
 
