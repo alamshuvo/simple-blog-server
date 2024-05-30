@@ -14,6 +14,7 @@ const port =process.env.PORT || 5000;
 
 app.use(cors({
   origin:[
+    'http://localhost:5174',
     'http://localhost:5173',
     'https://simple-blog-e67d9.web.app',
     'https://simple-blog-e67d9.firebaseapp.com'
@@ -24,6 +25,9 @@ app.use(cors({
 app.use(express.json());
 app.use(cokieeParser());
 
+
+console.log(process.env.TRANSPROTER_EMAIL);
+console.log(process.env.TRANSPROTER_PASS);
 
 
 const sendMail=(emailAddress,emailData)=>{
@@ -67,7 +71,6 @@ const sendMail=(emailAddress,emailData)=>{
 
 );
 
-  console.log("Message sent: %s", info.messageId);
 }
 
 
@@ -121,12 +124,12 @@ async function run() {
   const commentCollection= client.db('simplecommentDB').collection('commentDB')
   const wishlistCollection= client.db('simplewishlistDB').collection('wishlistDB')
 
-console.log(process.env.ACCESS_TOKEN);
+// console.log(process.env.ACCESS_TOKEN);
 
 app.post("/jwt" ,async(req,res)=>{
 const user =req.body;
 const token=jwt.sign(user,process.env.ACCESS_TOKEN,{expiresIn:'1h'})
-console.log("user",user);
+// console.log("user",user);
 res.cookie('token',token,cookieOptions)
 .send({sucess:true})
 })
@@ -134,7 +137,7 @@ res.cookie('token',token,cookieOptions)
 
 app.post("/logout",async(req,res)=>{
   const  user=req.body;
-  console.log(user);
+  // console.log(user);
   res.clearCookie('token',{...cookieOptions, maxAge:0}).send({sucess:true})
 })
 
@@ -148,8 +151,9 @@ app.post("/logout",async(req,res)=>{
 // add blog on db
   app.post("/blog",async(req,res)=>{
     const newBlog=req.body;
-    console.log(newBlog,"dfdfdsfdsff");
+    console.log(newBlog.userEmail,"dfdfdsfdsff");
     const result=await blogCollection.insertOne(newBlog);
+    
 
     sendMail(newBlog?.userEmail,{
       subject:"Add Blog Sucessfully!",
@@ -170,7 +174,7 @@ app.post("/logout",async(req,res)=>{
   const filter={_id:new ObjectId(id)};
   const option={upsert:true};
   const updateBlog=req.body;
-  console.log(updateBlog);
+  // console.log(updateBlog);
   const blog={
     $set:{
       photo:updateBlog.photo,
@@ -188,7 +192,7 @@ app.post("/logout",async(req,res)=>{
   // add comment on db
   app.post("/comment",async(req,res)=>{
     const newComment=req.body;
-    console.log(newComment);
+    // console.log(newComment);
     const result=await commentCollection.insertOne(newComment)
     res.send(result)
   })
@@ -211,14 +215,14 @@ app.post("/logout",async(req,res)=>{
     // wishlist added on db
     app.post("/wishlist",async(req,res)=>{
       const newWishlist=req.body;
-      console.log(newWishlist);
+      // console.log(newWishlist);
       const result=await wishlistCollection.insertOne(newWishlist)
       res.send(result)
     })
 
     app.post("/wish",async(req,res)=>{
       const newWishlist=req.body;
-      console.log(newWishlist);
+      // console.log(newWishlist);
       const result=await wishlistCollection.insertOne(newWishlist)
       res.send(result)
     })
