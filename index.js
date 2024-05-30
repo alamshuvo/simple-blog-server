@@ -1,10 +1,12 @@
 const express = require('express');
+require('dotenv').config()
 const bodyParser = require('body-parser');
 const cokieeParser=require('cookie-parser')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
-const jwt =require('jsonwebtoken')
-require('dotenv').config()
+const jwt =require('jsonwebtoken');
+const nodemailer = require("nodemailer");
+
 const app =express();
 const port =process.env.PORT || 5000;
 
@@ -21,6 +23,52 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cokieeParser());
+
+
+
+const sendMail=(emailAddress,emailData)=>{
+  const transporter = nodemailer.createTransport({
+    service:'gmail',
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // Use `true` for port 465, `false` for all other ports
+    auth: {
+      user: process.env.TRANSPROTER_EMAIL,
+      pass: process.env.TRANSPROTER_PASS,
+    },
+  });
+
+
+  // varify transport 
+  transporter.verify(function (error, success) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Server is ready to take our messages");
+    }
+  });
+
+
+  const data=    {
+    from: `"Simple-Blog👻" <${process.env.TRANSPROTER_EMAIL}>`, // sender address
+    to: emailAddress, // list of receivers
+    subject: emailData.subject, // Subject line
+    html: emailData.message, // html body
+  }
+
+ transporter.sendMail( data,(error,info)=>{
+  if (error) {
+    console.log(error);
+  }
+  else{
+    console.log("email send",info.response);
+  }
+}
+
+);
+
+  console.log("Message sent: %s", info.messageId);
+}
 
 
 
@@ -100,8 +148,17 @@ app.post("/logout",async(req,res)=>{
 // add blog on db
   app.post("/blog",async(req,res)=>{
     const newBlog=req.body;
-    console.log(newBlog);
-    const result=await blogCollection.insertOne(newBlog)
+    console.log(newBlog,"dfdfdsfdsff");
+    const result=await blogCollection.insertOne(newBlog);
+
+    sendMail(newBlog?.userEmail,{
+      subject:"Add Blog Sucessfully!",
+      message:`You have successfully Added a Blog Thanks ${newBlog?.userName} `
+    })
+    sendMail(`${process.env.TRANSPROTER_EMAIL}`,{
+      subject:"A  User Added Blog Sucessfully!",
+      message:`${newBlog?.userName} successfully Added a Blog ${newBlog?.formattedDate} ${newBlog?.userEmail} `
+    })
     res.send(result)
   })
 
@@ -214,13 +271,21 @@ app.get("/wishlist", async(req,res)=>{
         const result=await blogCollection.findOne(quary);
         res.send(result)
       })
-    app.get("/blog/categories/:categories",async(req,res)=>{
-        const id =req.params.categories;
-        console.log(id);
-        const quary={categories:new ObjectId(id)};
-        const result=await blogCollection.find(quary);
-        res.send(result)
-      })
+    // app.get("/blog/categories/:categories",async(req,res)=>{
+    //     const id =req.params.categories;
+    //     console.log(id);
+    //     const quary={categories:new ObjectId(id)};
+    //     const result=await blogCollection.find(quary);
+    //     res.send(result)
+    //   })
+    // app.get('/blog/categories/:category', async (req, res) => {
+    //   const cat = (req.params.category); 
+    //   console.log(cat);
+    //     const cursor = blogCollection.find();
+    //     const result = await cursor.toArray();
+    //     res.send(result);
+     
+    // });
 
 
 
